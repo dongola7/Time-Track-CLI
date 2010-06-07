@@ -5,9 +5,10 @@ exec tclsh "$0" ${1+"$@"}
 package require Tcl 8.4
 package require cmdline 1.3
 
-array set state {
-    data {}
-}
+array set state [list \
+    data {} \
+    data_file [file join $::env(HOME) .time_track time_track.txt] \
+]
 
 proc main {argc argv} {
     if {$argv < 1} {
@@ -18,17 +19,19 @@ proc main {argc argv} {
     set cmd [lindex $argv 0]
     set argv [lrange $argv 1 end]
 
+    file mkdir [file dirname $::state(data_file)]
+
     if {[catch {findMatchingCommand $cmd} cmd]} {
         puts stderr $cmd
         exit -1
     }
 
-    set ::state(data) [read_data_file time_track.txt]
+    set ::state(data) [read_data_file $::state(data_file)]
     if {[catch {$cmd $argv} msg]} {
         puts stderr $msg
         exit -1
     }
-    write_data_file time_track.txt $::state(data)
+    write_data_file $::state(data_file) $::state(data)
 }
 
 proc read_data_file {filename} {
@@ -98,6 +101,8 @@ proc line_to_components {line} {
     if {[regexp -- {(.*) - (.*)} $times -> start_time end_time] == 0} {
         return -code error "Malformed times in line '$line'"
     }
+
+    set code [string range $code 1 end]
 
     return [list start_time $start_time end_time $end_time message $message code $code]
 }
