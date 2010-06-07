@@ -163,7 +163,7 @@ proc cmd.stop {argv} {
     array set params [::cmdline::getoptions argv $options $usage]
 
     if {[exists_active_task] == 0} {
-        return -code error "There is no currently active task."
+        return -code error "You're not currently working on anything."
     }
 
     set line [lindex $::state(data) end]
