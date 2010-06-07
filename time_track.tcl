@@ -5,11 +5,6 @@ exec tclsh "$0" ${1+"$@"}
 package require Tcl 8.4
 package require cmdline 1.3
 
-#TODO:
-#   Handle the case where no date is specified in the start time argument.
-#   Handle the case where no date is specified in the end time argument.
-#   Handle the case where a date is missing in the actual text file.
-
 array set state {
     data {}
 }
