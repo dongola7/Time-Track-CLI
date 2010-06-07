@@ -91,7 +91,7 @@ proc format_time {time} {
 }
 
 proc line_to_components {line} {
-    if {[regexp -- {^\((.*)\) (.*)$} $line -> times message] == 0} {
+    if {[regexp -- {^\((.*)\) (.*) (\@.*)?} $line -> times message code] == 0} {
         return -code error "Malformed line '$line'"
     }
 
@@ -99,11 +99,14 @@ proc line_to_components {line} {
         return -code error "Malformed times in line '$line'"
     }
 
-    return [list start_time $start_time end_time $end_time message $message]
+    return [list start_time $start_time end_time $end_time message $message code $code]
 }
 
 proc components_to_line {components} {
     array set parts $components
+    if {$parts(code) ne ""} {
+        set parts(message) "$parts(message) @$parts(code)"
+    }
     return "($parts(start_time) - $parts(end_time)) $parts(message)"
 }
 
@@ -137,7 +140,7 @@ proc cmd.start {argv} {
         set params(time) [format_time [clock scan $params(time)]]
     }
 
-    set parts [list start_time $params(time) end_time "" message $argv]
+    set parts [list start_time $params(time) end_time "" message $argv code $params(code)]
 
     if {[exists_active_task] != 0} {
         cmd.stop {}
