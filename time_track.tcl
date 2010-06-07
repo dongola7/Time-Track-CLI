@@ -94,7 +94,7 @@ proc format_time {time} {
 }
 
 proc line_to_components {line} {
-    if {[regexp -- {^\((.*)\) (.*) (\@.*)?} $line -> times message code] == 0} {
+    if {[regexp -- {^\((.*)\) (.*?)(\s+@.*)?} $line -> times message code] == 0} {
         return -code error "Malformed line '$line'"
     }
 
@@ -102,7 +102,7 @@ proc line_to_components {line} {
         return -code error "Malformed times in line '$line'"
     }
 
-    set code [string range $code 1 end]
+    set code [string range [string trim $code] 1 end]
 
     return [list start_time $start_time end_time $end_time message $message code $code]
 }
