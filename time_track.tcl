@@ -174,4 +174,19 @@ proc cmd.stop {argv} {
     set ::state(data) [lreplace $::state(data) end end [components_to_line [array get parts]]]
 }
 
+proc cmd.status {argv} {
+    if {[exists_active_task] == 0} {
+        return -code error "You're not currently working on anything."
+    }
+
+    set line [lindex $::state(data) end]
+    array set parts [line_to_components $line]
+
+    set start_time [clock scan $parts(start_time)]
+
+    set duration [expr {([clock seconds] - $start_time) / 60}]
+
+    puts "$parts(message) for $duration minutes"
+}
+
 main $argc $argv
