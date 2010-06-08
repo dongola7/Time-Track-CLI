@@ -93,6 +93,39 @@ proc format_time {time} {
     return [clock format $time -format "%D %R"]
 }
 
+proc format_duration {duration} {
+    if {$duration == 0} {
+        return "not long at all"
+    }
+
+    set hours [expr {$duration/60}]
+    set minutes [expr {$duration - ($hours * 60)}]
+
+    if {$hours > 1} {
+        set hour_string "$hours hours"
+    } elseif {$hours > 0} {
+        set hour_string "$hours hour"
+    } else {
+        set hour_string ""
+    }
+
+    if {$minutes > 1} {
+        set minute_string "$minutes minutes"
+    } elseif {$minutes > 0} {
+        set minute_string "$minutes minute"
+    } else {
+        set minute_string ""
+    }
+
+    if {$hour_string ne "" && $minute_string ne ""} {
+        return "$hour_string, $minute_string"
+    } elseif {$hour_string ne ""} {
+        return $hour_string
+    } else {
+        return $minute_string
+    }
+}
+
 proc line_to_components {line} {
     if {[regexp -- {^\((.*)\) (.*?)(\s+@.*)?} $line -> times message code] == 0} {
         return -code error "Malformed line '$line'"
@@ -194,7 +227,7 @@ proc cmd.status {argv} {
 
     set duration [expr {([clock seconds] - $start_time) / 60}]
 
-    puts "$parts(message) for $duration minutes"
+    puts "$parts(message) for [format_duration $duration]"
 }
 
 main $argc $argv
