@@ -244,4 +244,29 @@ proc cmd.status {argv} {
     puts "$parts(message) for [format_duration $duration]"
 }
 
+proc cmd.list-codes {argv} {
+    array set summary {}
+
+    foreach line $::state(data) {
+        array set parts [line_to_components $line]
+
+        set date $parts(end_time)
+        if {$date eq ""} {
+            set date $parts(start_time)
+        }
+
+        set code $parts(code)
+        if {$code eq ""} {
+            set code "<NONE>"
+        }
+
+        set date [clock format $date -format "%D"]
+        set summary($code) "- $date - $parts(message)"
+    }
+
+    foreach code [array names summary] {
+        puts "$code $summary($code)"
+    }
+}
+
 main $argc $argv
