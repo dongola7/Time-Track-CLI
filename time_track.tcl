@@ -135,6 +135,11 @@ proc line_to_components {line} {
         return -code error "Malformed times in line '$line'"
     }
 
+    set start_time [clock scan $start_time]
+    if {$end_time ne ""} {
+        set end_time [clock scan $end_time]
+    }
+
     set code [string range [string trim $code] 1 end]
 
     return [list start_time $start_time end_time $end_time message $message code $code]
@@ -142,10 +147,21 @@ proc line_to_components {line} {
 
 proc components_to_line {components} {
     array set parts $components
+    
     if {$parts(code) ne ""} {
-        set parts(message) "$parts(message) @$parts(code)"
+        set message "$parts(message) @$parts(code)"
+    } else {
+        set message $parts(message)
     }
-    return "($parts(start_time) - $parts(end_time)) $parts(message)"
+
+    set start_time [format_time $parts(start_time)]
+    if {$parts(end_time) eq ""} {
+        set end_time ""
+    } else {
+        set end_time [format_time $parts(end_time)]
+    }
+
+    return "($start_time - $end_time) $message"
 }
 
 proc exists_active_task {} {
@@ -173,15 +189,15 @@ proc cmd.start {argv} {
     array set params [::cmdline::getoptions argv $options $usage]
 
     if {$params(time) eq ""} {
-        set params(time) [format_time [clock seconds]]
+        set params(time) [clock seconds]
     } else {
-        set params(time) [format_time [clock scan $params(time)]]
+        set params(time) [clock scan $params(time)]
     }
 
     set parts [list start_time $params(time) end_time "" message $argv code $params(code)]
 
     if {[exists_active_task] != 0} {
-        cmd.stop [list -time $params(time)]
+        cmd.stop [list -time [format_time $params(time)]]
     }
 
     lappend ::state(data) [components_to_line $parts]
@@ -205,9 +221,9 @@ proc cmd.stop {argv} {
     set start_time [clock scan $parts(start_time)]
 
     if {$params(time) eq ""} {
-        set params(time) [format_time [clock seconds]]
+        set params(time) [clock seconds]
     } else {
-        set params(time) [format_time [clock scan $params(time)]]
+        set params(time) [clock scan $params(time)]
     }
 
     set parts(end_time) $params(time)
@@ -223,9 +239,7 @@ proc cmd.status {argv} {
     set line [lindex $::state(data) end]
     array set parts [line_to_components $line]
 
-    set start_time [clock scan $parts(start_time)]
-
-    set duration [expr {([clock seconds] - $start_time) / 60}]
+    set duration [expr {([clock seconds] - $parts(start_time)) / 60}]
 
     puts "$parts(message) for [format_duration $duration]"
 }
