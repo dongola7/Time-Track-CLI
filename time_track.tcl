@@ -218,8 +218,6 @@ proc cmd.stop {argv} {
     set line [lindex $::state(data) end]
     array set parts [line_to_components $line]
 
-    set start_time [clock scan $parts(start_time)]
-
     if {$params(time) eq "now"} {
         set params(time) [clock seconds]
     } else {
