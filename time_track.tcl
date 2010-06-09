@@ -231,6 +231,68 @@ proc cmd.stop {argv} {
     set ::state(data) [lreplace $::state(data) end end [components_to_line [array get parts]]]
 }
 
+proc cmd.summary {argv} {
+    set options {
+        {date.arg "" "The date to summarize"}
+    }
+    set usage "summary \[options]\noptions:"
+
+    array set params [::cmdline::getoptions argv $options $usage]
+
+    if {$params(date) eq ""} {
+        set filter_start_time [clock scan "today 0:00"]
+    } else {
+        set filter_start_time [clock scan $params(date)]
+        set filter_start_time [clock scan [clock format $filter_start_time -format %D]]
+    }
+
+    set filter_end_time [expr {86400 + $filter_start_time}]
+
+    array set summary {}
+
+    foreach line $::state(data) {
+        array set parts [line_to_components $line]
+
+        if {$parts(end_time) eq ""} {
+            set parts(end_time) [clock seconds]
+        }
+
+        if {$parts(start_time) > $filter_end_time} {
+            continue
+        } elseif {$parts(end_time) < $filter_start_time} {
+            continue
+        }
+
+        if {$parts(code) eq ""} {
+            set parts(code) "<NONE>"
+        }
+
+        if {![info exists summary($parts(code))]} {
+            set summary($parts(code)) {}
+        }
+
+        set duration [expr {($parts(end_time) - $parts(start_time)) / 60}]
+        lappend summary($parts(code)) $duration $parts(message)
+    }
+
+    set daily_total 0
+    foreach code [lsort [array names summary]] {
+        set subtotal 0
+        
+        puts "Charges to $code"
+        foreach {duration message} $summary($code) {
+            puts "   $message -  [format_duration $duration]"
+            incr subtotal $duration
+            incr daily_total $duration
+        }
+
+        puts "---"
+        puts "Subtotal for $code [format_duration $subtotal]"
+        puts ""
+    }
+    puts "For the day [format_duration $daily_total]"
+}
+
 proc cmd.status {argv} {
     if {[exists_active_task] == 0} {
         return -code error "You're not currently working on anything."
