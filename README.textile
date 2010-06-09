@@ -1,0 +1,123 @@
+h1. time_track.tcl Command Line Time Tracking
+
+In the spirit of "TODO.TXT":http://todotxt.com, this little Tcl script will handle
+tracking how much time you spend on tasks throughout the day.  All records are stored
+in a plain text file so you're not dependent on anyone else's format.
+
+h1. License
+
+This program is released under the "BSD":http://creativecommons.org/licenses/BSD/ license.
+
+h1. Installation
+
+Installation on \*NIX systems should be pretty straightforward.  The only dependencies
+are Tcl 8.4 or greater and the tcllib support library (specifically, the cmdline packet).
+If you're running Ubuntu, you can install both of these using @apt-get@:
+
+<pre><code>
+apt-get install tcl tcllib
+</code></pre>
+
+On Windows, I recommend downloading the excellent "ActiveTcl":http://www.activestate.com/activetcl
+distribution from the folks at "ActiveState":http://www.activestate.com
+
+h1. Data Storage
+
+All data is currently stored in a single txt file in @$HOME/.time_track/time_track.txt@.
+
+h1. Usage
+
+The script itself is still somewhat rudimentary, and help is sparse.  So here are some
+usage tips to get you started.
+
+First, the script itself is called @time_track.tcl@.  All commands follow the format:
+
+<pre><code>
+time_track.tcl <command> [options]
+</code></pre>
+
+Most commands accept a @-help@ that will list all of the available options, defaults, etc.
+
+h2. Basic Example
+
+Assuming you only need basic time tracking, you can use the program as follows:
+
+<pre><code>
+./time_track.tcl start hacking on a project
+./time_track.tcl start hacking on another project
+./time_track.tcl stop
+./time_track.tcl summary
+</code></pre>
+
+When you execute the @summary@ command, the program will output a list of all the
+tasks you worked along with the time spent on each task.
+
+h2. Using Task Codes
+
+Let's say you work for multiple clients, and you spend a portion of each day working on tasks
+for each of your clients.  You can track time for each client as follows:
+
+<pre><code>
+./time_track.tcl start -code client_a hacking on project 1
+./time_track.tcl start -code client_a hacking on project 2
+./time_track.tcl start -code client_b fixing some bugs
+./time_track.tcl start -code client_a more hacking on project 1
+./time_track.tcl stop
+./time_track.tcl summary
+</code></pre>
+
+When you execute the @summary@ command, the program will output a list of all the tasks
+you worked on, organized by task code (i.e., @client_a@ or @client_b@).  A subtotal
+of hours spent will be provided for each task code.
+
+h1. Commands
+
+h2. start
+
+The start command starts a new task.  A new line is appended to the data file containing
+the starting time, along with a brief message describing the task.  If a current task is
+running it will be stopped.
+
+h3. Options
+
+|_. Option |_. Description |
+| @-time@ | Explicitly set the starting time for the task.  Defaults to @now@. |
+| @-code@ | Set an associated code for the task.  This is useful for grouping multiple tasks together into a single account and is used in summarization. |
+
+h2. stop
+
+The stop command stops the current task.  The current time is used as the ending time for
+the task.
+
+h3. Options
+
+|_. Option |_. Description |
+| @-time@ | Explicitly set the stop time for the task.  Defaults to @now@. |
+
+h2. summary
+
+Summarizes all of the tasks for today and outputs a simple report detailing how
+long you spent on each task.  Subtotals are provided for each task code as well as a total
+for the day.
+
+h3. Options
+
+|_. Option |_. Description |
+| @-date@ | The date to summarize.  Defaults to @today@. |
+
+h2. list-codes
+
+Lists all of the active task codes along with the date they were last used and the
+last description.
+
+h3. Options
+
+None
+
+h2. status
+
+Prints the currently active task along with the amount of time spent.
+
+h3. Options
+
+None
