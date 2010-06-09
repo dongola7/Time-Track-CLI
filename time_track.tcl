@@ -326,7 +326,7 @@ proc cmd.list-codes {argv} {
         set summary($code) "- $date - $parts(message)"
     }
 
-    foreach code [array names summary] {
+    foreach code [lsort [array names summary]] {
         puts "$code $summary($code)"
     }
 }
