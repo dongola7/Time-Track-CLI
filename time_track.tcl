@@ -181,14 +181,14 @@ proc exists_active_task {} {
 
 proc cmd.start {argv} {
     set options {
-        {time.arg "" "Explicitly set the starting time."}
+        {time.arg "now" "Explicitly set the starting time."}
         {code.arg "" "Specify the associated charge code."}
     }
     set usage "start \[options] <task>\noptions:"
 
     array set params [::cmdline::getoptions argv $options $usage]
 
-    if {$params(time) eq ""} {
+    if {$params(time) eq "now"} {
         set params(time) [clock seconds]
     } else {
         set params(time) [clock scan $params(time)]
@@ -205,7 +205,7 @@ proc cmd.start {argv} {
 
 proc cmd.stop {argv} {
     set options {
-        {time.arg "" "Explicitly set the stop time."}
+        {time.arg "now" "Explicitly set the stop time."}
     }
     set usage "stop \[options]\noptions:"
 
@@ -220,7 +220,7 @@ proc cmd.stop {argv} {
 
     set start_time [clock scan $parts(start_time)]
 
-    if {$params(time) eq ""} {
+    if {$params(time) eq "now"} {
         set params(time) [clock seconds]
     } else {
         set params(time) [clock scan $params(time)]
@@ -233,13 +233,13 @@ proc cmd.stop {argv} {
 
 proc cmd.summary {argv} {
     set options {
-        {date.arg "" "The date to summarize"}
+        {date.arg "today" "The date to summarize"}
     }
     set usage "summary \[options]\noptions:"
 
     array set params [::cmdline::getoptions argv $options $usage]
 
-    if {$params(date) eq ""} {
+    if {$params(date) eq "today"} {
         set filter_start_time [clock scan "today 0:00"]
     } else {
         set filter_start_time [clock scan $params(date)]
