@@ -276,9 +276,19 @@ proc cmd.summary {argv} {
     set daily_total 0
     foreach code [lsort [array names summary]] {
         set subtotal 0
-        
-        puts "Charges to $code"
+
+        array set messages {}
         foreach {duration message} $summary($code) {
+            if {[info exists messages($message)]} {
+                incr messages($message) $duration
+            } else {
+                set messages($message) $duration
+            }
+        }
+
+        puts "Charges to $code"
+        foreach message [array names messages] {
+            set duration $messages($message)
             puts "   $message -  [format_duration $duration]"
             incr subtotal $duration
             incr daily_total $duration
