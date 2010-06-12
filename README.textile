@@ -38,7 +38,7 @@ $ ./time_track.tcl stop
 $ ./time_track.tcl summary
 Charges to <NONE>
    hacking on a project -  1 hour
-    start hacking on another project -  1 hour
+   start hacking on another project -  1 hour
 ---
 Subtotal for <NONE> 2 hours
       
