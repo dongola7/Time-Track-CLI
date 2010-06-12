@@ -32,25 +32,41 @@ h2. Basic Example
 
 Assuming you only need basic time tracking, you can use the program as follows:
 
-<pre><code>./time_track.tcl start hacking on a project
-./time_track.tcl start hacking on another project
-./time_track.tcl stop
-./time_track.tcl summary</code></pre>
-
-When you execute the @summary@ command, the program will output a list of all the tasks you worked along with the time spent on each task.
+<pre><code>$ ./time_track.tcl start hacking on a project
+$ ./time_track.tcl start hacking on another project
+$ ./time_track.tcl stop
+$ ./time_track.tcl summary
+Charges to <NONE>
+   hacking on a project -  1 hour
+      start hacking on another project -  1 hour
+      ---
+      Subtotal for <NONE> 2 hours
+      
+      For the day 2 hours</code></pre>
 
 h2. Using Task Codes
 
 Let's say you work for multiple clients, and you spend a portion of each day working on tasks for each of your clients.  You can track time for each client as follows:
 
-<pre><code>./time_track.tcl start -code client_a hacking on project 1
-./time_track.tcl start -code client_a hacking on project 2
-./time_track.tcl start -code client_b fixing some bugs
-./time_track.tcl start -code client_a more hacking on project 1
-./time_track.tcl stop
-./time_track.tcl summary</code></pre>
-
-When you execute the @summary@ command, the program will output a list of all the tasks you worked on, organized by task code (i.e., @client_a@ or @client_b@).  A subtotal of hours spent will be provided for each task code.
+<pre><code>$ ./time_track.tcl start -code client_a hacking on project 1
+$ ./time_track.tcl start -code client_a hacking on project 2
+$ ./time_track.tcl start -code client_b fixing some bugs
+$ ./time_track.tcl start -code client_a more hacking on project 1
+$ ./time_track.tcl stop
+$ ./time_track.tcl summary
+Charges to client_a
+  hacking on project 2 -  18 minutes
+  hacking on project 2 -  30 minutes
+  more hacking on project 1 -  30 minutes
+---
+Subtotal for client_a 1 hour, 18 minutes
+         
+Charges to client_b
+  fixing some bugs -  30 minutes
+---
+Subtotal for client_b 30 minutes
+            
+For the day 1 hour, 48 minutes</code></pre>
 
 h1. Commands
 
