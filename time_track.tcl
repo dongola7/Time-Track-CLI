@@ -389,6 +389,10 @@ proc cmd.help {argv} {
 
     array set params [::cmdline::getoptions argv $options $usage]
 
+    puts "time_track.tcl 1.0"
+    puts ""
+    puts "Command line based time tracking software."
+    puts ""
     puts "Usage: [info script] <command> ?options?"
     puts ""
     puts "Available commands:"
@@ -403,6 +407,9 @@ proc cmd.help {argv} {
     }
     puts ""
     puts "See '[info script] <command> -help' for more information on a specific command."
+    puts ""
+    puts "Source code and releases may be found at http://github.com/dongola7/Time-Track-CLI."
+    puts "Report bugs at http://github.com/dongola7/Time-Track-CLI/issues."
     puts ""
     puts "Released under the BSD license (http://creativecommons.org/licenses/BSD/)."
 }
