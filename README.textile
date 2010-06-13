@@ -121,3 +121,7 @@ Prints the currently active task along with the amount of time spent.
 h3. Options
 
 None
+
+h1. Reporting Bugs and Requesting Features
+
+Please report all bugs and feature requests via the Github issue tracker at http://github.com/dongola7/Time-Track-CLI/issues.
