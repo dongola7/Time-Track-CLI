@@ -184,7 +184,7 @@ proc cmd.start {argv} {
         {time.arg "now" "Explicitly set the starting time."}
         {code.arg "" "Specify the associated charge code."}
     }
-    set usage "start \[options] <task>\noptions:"
+    set usage "start \[options] <task>\n\nStarts a new task.  Stops the current task (if any).\n\noptions:"
 
     array set params [::cmdline::getoptions argv $options $usage]
 
@@ -207,7 +207,7 @@ proc cmd.stop {argv} {
     set options {
         {time.arg "now" "Explicitly set the stop time."}
     }
-    set usage "stop \[options]\noptions:"
+    set usage "stop \[options]\n\nStops the current active task.\n\noptions:"
 
     array set params [::cmdline::getoptions argv $options $usage]
 
@@ -233,7 +233,7 @@ proc cmd.summary {argv} {
     set options {
         {date.arg "today" "The date to summarize"}
     }
-    set usage "summary \[options]\noptions:"
+    set usage "summary \[options]\n\nGenerates a summary report of the tasks for a given date.\n\noptions:"
 
     array set params [::cmdline::getoptions argv $options $usage]
 
@@ -277,6 +277,7 @@ proc cmd.summary {argv} {
     foreach code [lsort [array names summary]] {
         set subtotal 0
 
+        # Combine tasks with identical descriptions.
         array set messages {}
         foreach {duration message} $summary($code) {
             if {[info exists messages($message)]} {
@@ -302,6 +303,11 @@ proc cmd.summary {argv} {
 }
 
 proc cmd.status {argv} {
+    set options { }
+    set usage "status \[options]\n\nLists the active task and amount of time spent.\n\noptions:"
+
+    array set params [::cmdline::getoptions argv $options $usage]
+
     if {[exists_active_task] == 0} {
         return -code error "You're not currently working on anything."
     }
@@ -315,6 +321,11 @@ proc cmd.status {argv} {
 }
 
 proc cmd.list-codes {argv} {
+    set options { }
+    set usage "list-codes \[options]\n\nLists all active charge codes and the last date and task for each.\n\noptions:"
+
+    array set params [::cmdline::getoptions argv $options $usage]
+
     array set summary {}
 
     foreach line $::state(data) {
