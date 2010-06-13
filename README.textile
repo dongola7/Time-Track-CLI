@@ -70,6 +70,14 @@ For the day 1 hour, 48 minutes</code></pre>
 
 h1. Commands
 
+h2. help
+
+Lists all available commands along with a brief description.
+
+h3. Options
+
+None
+
 h2. start
 
 The start command starts a new task.  A new line is appended to the data file containing the starting time, along with a brief message describing the task.  If a current task is running it will be stopped.
