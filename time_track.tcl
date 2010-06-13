@@ -12,7 +12,7 @@ array set state [list \
 
 proc main {argc argv} {
     if {$argv < 1} {
-        puts stderr "Usage: [info script] <command> ?options?"
+        cmd.help {}
         exit -1
     }
 
@@ -179,12 +179,13 @@ proc exists_active_task {} {
     return 0
 }
 
+set cmd.start.description "Starts a new task.  Stops the current task (if any)."
 proc cmd.start {argv} {
     set options {
         {time.arg "now" "Explicitly set the starting time."}
         {code.arg "" "Specify the associated charge code."}
     }
-    set usage "start \[options] <task>\n\nStarts a new task.  Stops the current task (if any).\n\noptions:"
+    set usage "start \[options] <task>\n\n${::cmd.start.description}\n\noptions:"
 
     array set params [::cmdline::getoptions argv $options $usage]
 
@@ -203,11 +204,12 @@ proc cmd.start {argv} {
     lappend ::state(data) [components_to_line $parts]
 }
 
+set cmd.stop.description "Stops the current active task."
 proc cmd.stop {argv} {
     set options {
         {time.arg "now" "Explicitly set the stop time."}
     }
-    set usage "stop \[options]\n\nStops the current active task.\n\noptions:"
+    set usage "stop \[options]\n\n${::cmd.stop.description}\n\noptions:"
 
     array set params [::cmdline::getoptions argv $options $usage]
 
@@ -229,11 +231,12 @@ proc cmd.stop {argv} {
     set ::state(data) [lreplace $::state(data) end end [components_to_line [array get parts]]]
 }
 
+set cmd.summary.description "Generates a summary report of the tasks for a given date."
 proc cmd.summary {argv} {
     set options {
         {date.arg "today" "The date to summarize"}
     }
-    set usage "summary \[options]\n\nGenerates a summary report of the tasks for a given date.\n\noptions:"
+    set usage "summary \[options]\n\n${::cmd.summary.description}\n\noptions:"
 
     array set params [::cmdline::getoptions argv $options $usage]
 
@@ -302,9 +305,10 @@ proc cmd.summary {argv} {
     puts "For the day [format_duration $daily_total]"
 }
 
+set cmd.status.description "Lists the active task and amount of time spent."
 proc cmd.status {argv} {
     set options { }
-    set usage "status \[options]\n\nLists the active task and amount of time spent.\n\noptions:"
+    set usage "status \[options]\n\n${::cmd.status.description}\n\noptions:"
 
     array set params [::cmdline::getoptions argv $options $usage]
 
@@ -320,9 +324,10 @@ proc cmd.status {argv} {
     puts "$parts(message) for [format_duration $duration]"
 }
 
+set cmd.list-codes.description "Lists all active charge codes and the last date and task for each."
 proc cmd.list-codes {argv} {
     set options { }
-    set usage "list-codes \[options]\n\nLists all active charge codes and the last date and task for each.\n\noptions:"
+    set usage "list-codes \[options]\n\n${::cmd.list-codes.description}\n\noptions:"
 
     array set params [::cmdline::getoptions argv $options $usage]
 
@@ -348,6 +353,29 @@ proc cmd.list-codes {argv} {
     foreach code [lsort [array names summary]] {
         puts "$code $summary($code)"
     }
+}
+
+set cmd.help.description "Lists all available commands."
+proc cmd.help {argv} {
+    set options { }
+    set usage "help \[options]\n\n${::cmd.help.description}\n\noptions:"
+
+    array set params [::cmdline::getoptions argv $options $usage]
+
+    puts "Usage: [info script] <command> ?options?"
+    puts ""
+    puts "Available commands:"
+    puts ""
+    foreach command [lsort [info commands cmd.*]] {
+        set description ""
+        if {[info exists ::$command.description]} {
+            set description " - [set ::$command.description]"
+        }
+        set command [regsub -- {cmd\.} $command {}]
+        puts "   $command$description"
+    }
+    puts ""
+    puts "See '[info script] <command> -help' for more information on a specific command."
 }
 
 main $argc $argv
