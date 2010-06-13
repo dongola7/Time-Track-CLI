@@ -206,6 +206,26 @@ proc exists_active_task {} {
     return 0
 }
 
+proc foreach_entry {var_name body} {
+    global errorInfo errorCode
+
+    upvar 1 $var_name components
+
+    foreach line $::state(data) {
+        set components [line_to_components $line]
+
+        set code [catch {uplevel 1 $body} message]
+        switch -- $code {
+            0 { }
+            1 { error $message $::errorInfo $::errorCode }
+            2 { return $message }
+            3 { break }
+            4 { continue }
+            default { return -code $code $message }
+        }
+    }
+}
+
 set cmd.start.description "Starts a new task.  Stops the current task (if any)."
 proc cmd.start {argv} {
     set options {
@@ -278,8 +298,8 @@ proc cmd.summary {argv} {
 
     array set summary {}
 
-    foreach line $::state(data) {
-        array set parts [line_to_components $line]
+    foreach_entry components {
+        array set parts $components
 
         if {$parts(end_time) eq ""} {
             set parts(end_time) [clock seconds]
@@ -360,8 +380,8 @@ proc cmd.list-codes {argv} {
 
     array set summary {}
 
-    foreach line $::state(data) {
-        array set parts [line_to_components $line]
+    foreach_entry components {
+        array set parts $components
 
         set date $parts(end_time)
         if {$date eq ""} {
