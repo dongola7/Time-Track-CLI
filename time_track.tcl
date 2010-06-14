@@ -300,6 +300,9 @@ proc cmd.stop {argv} {
         set params(time) [clock scan $params(time)]
     }
 
+    if {$parts(start_time) > $params(time)} {
+        return -code error "Cannot stop active task.  End time '[format_time $params(time)]' is less than start time '[format_time $parts(start_time)]'"
+    }
     set parts(end_time) $params(time)
 
     set ::state(data) [lreplace $::state(data) end end [components_to_line [array get parts]]]
