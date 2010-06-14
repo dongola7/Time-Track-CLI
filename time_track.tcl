@@ -365,6 +365,7 @@ proc cmd.summary {argv} {
             incr subtotal $duration
             incr daily_total $duration
         }
+        array unset messages
 
         puts "---"
         puts "Subtotal for $code [format_duration $subtotal]"
