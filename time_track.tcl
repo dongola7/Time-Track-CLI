@@ -390,7 +390,7 @@ proc cmd.help {argv} {
 
     array set params [::cmdline::getoptions argv $options $usage]
 
-    puts "time_track.tcl 0.3"
+    puts "time_track.tcl 0.3.1"
     puts ""
     puts "Command line based time tracking software."
     puts ""
