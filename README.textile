@@ -122,7 +122,7 @@ One or more aliases may defined for each task code you use to track your work.  
 
 Aliases are defined in the $HOME/.time_track/aliases.txt file.  One alias may be defined per line, with each line having the following format:
 
-<pre><code>&lt;alias&gt; = &lt;code&gt;</code></pre>
+<pre><code><alias> = <code></code></pre>
 
 For example:
 
