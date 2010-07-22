@@ -8,9 +8,9 @@ This program is released under the "BSD":http://creativecommons.org/licenses/BSD
 
 h1. Installation
 
-Installation on \*NIX systems should be pretty straightforward.  The only dependencies are Tcl 8.4 or greater and the tcllib support library (specifically, the cmdline packet).  If you're running Ubuntu, you can install both of these using @apt-get@:
+Installation on \*NIX systems should be pretty straightforward.  The only dependencies are Tcl 8.5 or greater and the tcllib support library (specifically, the cmdline packet).  If you're running Ubuntu, you can install both of these using @apt-get@:
 
-<pre><code>apt-get install tcl tcllib</code></pre>
+<pre><code>apt-get install tcl8.5 tcllib</code></pre>
 
 On Windows, I recommend downloading the excellent "ActiveTcl":http://www.activestate.com/activetcl distribution from the folks at "ActiveState":http://www.activestate.com
 
