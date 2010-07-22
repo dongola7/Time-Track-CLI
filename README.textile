@@ -86,7 +86,7 @@ h3. Options
 
 |_. Option |_. Description |
 | @-time@ | Explicitly set the starting time for the task.  Defaults to @now@. |
-| @-code@ | Set an associated code for the task.  This is useful for grouping multiple tasks together into a single account and is used in summarization. |
+| @-code@ | Set an associated code for the task.  This is useful for grouping multiple tasks together into a single account and is used in summarization.  This parameter also accepts an alias for a code.  See the @list-aliases@ command for more details on aliases.|
 
 h2. stop
 
@@ -109,6 +109,25 @@ h3. Options
 h2. list-codes
 
 Lists all of the active task codes along with the date they were last used and the last description.
+
+h3. Options
+
+None
+
+h2. list-aliases
+
+Lists all of the aliases for task codes.
+
+One or more aliases may defined for each task code you use to track your work.  Aliases are just another way of referring to the task code.  If a task code corresponds to a length project or account number for timekeeping purposes, then you may define multiple aliases that are easier to remember.  These aliases may be used anywhere you would otherwise use a task code.
+
+Aliases are defined in the $HOME/.time_track/aliases.txt file.  One alias may be defined per line, with each line having the following format:
+
+<pre><code>&lt;alias&gt; = &lt;code&gt;</code></pre>
+
+For example:
+
+<pre><code>customer_a = account.number.for.customer.a
+customer_b = account.number.for.customer.b</code></pre>
 
 h3. Options
 

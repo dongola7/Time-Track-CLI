@@ -33,8 +33,10 @@ package require Tcl 8.4
 package require cmdline 1.3
 
 array set state [list \
+    aliases {} \
     data {} \
     data_file [file join $::env(HOME) .time_track time_track.txt] \
+    alias_file [file join $::env(HOME) .time_track aliases.txt] \
 ]
 
 proc main {argc argv} {
@@ -53,12 +55,42 @@ proc main {argc argv} {
         exit -1
     }
 
+    set ::state(aliases) [read_alias_file $::state(alias_file)]
     set ::state(data) [read_data_file $::state(data_file)]
     if {[catch {$cmd $argv} msg]} {
         puts stderr $msg
         exit -1
     }
     write_data_file $::state(data_file) $::state(data)
+}
+
+proc read_alias_file {filename} {
+    if {![file exists $filename]} {
+        return {}
+    }
+
+    set in [open $filename r]
+
+    set result {}
+    set line [gets $in]
+    set line_number 1
+    while {![eof $in]} {
+        set line [string trim $line]
+        if {$line ne {}} {
+            set parts [split $line =]
+            if {[llength $parts] != 2} {
+                return -code error "malformed alias at line $line_number: $line"
+            }
+
+            foreach {alias code} $parts break
+            lappend result [list [string trim $alias] [string trim $code]]
+        }
+
+        set line [gets $in]
+        incr line_number
+    }
+
+    return $result
 }
 
 proc read_data_file {filename} {
@@ -252,6 +284,14 @@ proc foreach_entry_in_range {start_time end_time var_name body} {
     }
 }
 
+proc get_code_from_alias {alias} {
+    set index [lsearch -index 0 $::state(aliases) $alias]
+    if {$index == -1} {
+        return ""
+    }
+
+    return [lindex $::state(aliases) $index 1]
+}
 
 set cmd.start.description "Starts a new task.  Stops the current task (if any)."
 proc cmd.start {argv} {
@@ -269,7 +309,12 @@ proc cmd.start {argv} {
         set params(time) [clock scan $params(time)]
     }
 
-    set parts [list start_time $params(time) end_time "" message $argv code $params(code)]
+    set code [get_code_from_alias $params(code)]
+    if {$code eq ""} {
+        set code $params(code)
+    }
+
+    set parts [list start_time $params(time) end_time "" message $argv code $code]
 
     if {[exists_active_task] != 0} {
         cmd.stop [list -time [format_time $params(time)]]
@@ -394,6 +439,19 @@ proc cmd.status {argv} {
     set duration [expr {([clock seconds] - $parts(start_time)) / 60}]
 
     puts "$parts(message) for [format_duration $duration]"
+}
+
+set cmd.list-aliases.description "Lists all of the aliases defined along with their associated charge code."
+proc cmd.list-aliases {argv} {
+    set options { }
+    set usage "list-aliases \[options]\n\n${::cmd.list-aliases.description}\n\noptions:"
+
+    array set params [::cmdline::getoptions argv $options $usage]
+
+    foreach alias_pair $::state(aliases) {
+        foreach {alias code} $alias_pair break
+        puts "$alias - $code"
+    }
 }
 
 set cmd.list-codes.description "Lists all active charge codes and the last date and task for each."
