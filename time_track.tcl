@@ -353,6 +353,33 @@ proc cmd.stop {argv} {
     set ::state(data) [lreplace $::state(data) end end [components_to_line [array get parts]]]
 }
 
+set cmd.cancel.description "Cancels the current active task."
+proc cmd.cancel {argv} {
+    set options { 
+        {resume "Resume the previous task."}
+    }
+    set usage "cancel \[options]\n\n${::cmd.cancel.description}\n\noptions:"
+
+    array set params [::cmdline::getoptions argv $options $usage]
+
+    if {[exists_active_task] == 0} {
+        return -code error "You're not currently working on anything."
+    }
+
+    # Delete the last task
+    set ::state(data) [lreplace $::state(data) end end]
+
+    # If there is still an active task, clear the end time
+    if {$params(resume) && [llength $::state(data)] > 0} {
+        set line [lindex $::state(data) end]
+        array set parts [line_to_components $line]
+        
+        set parts(end_time) ""
+
+        set ::state(data) [lreplace $::state(data) end end [components_to_line [array get parts]]]
+    }
+}
+
 set cmd.summary.description "Generates a summary report of the tasks for a given date."
 proc cmd.summary {argv} {
     set options {

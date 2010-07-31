@@ -141,6 +141,15 @@ h3. Options
 
 None
 
+h2. cancel
+
+Cancels the currently active task, optionally resuming work on the previous task.
+
+h3. Options
+
+|_. Options |_. Description |
+| @-resume@ | Resume work on the previous active task. |
+
 h1. Reporting Bugs and Requesting Features
 
 Please report all bugs and feature requests via the Github issue tracker at http://github.com/dongola7/Time-Track-CLI/issues.
