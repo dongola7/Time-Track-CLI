@@ -314,6 +314,11 @@ proc cmd.start {argv} {
         set code $params(code)
     }
 
+    set argv [string trim $argv]
+    if {$argv eq ""} {
+        return -code error "Refusing to start unspecified task."
+    }
+
     set parts [list start_time $params(time) end_time "" message $argv code $code]
 
     if {[exists_active_task] != 0} {
