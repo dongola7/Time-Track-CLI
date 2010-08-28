@@ -31,6 +31,7 @@ exec tclsh "$0" ${1+"$@"}
 
 package require Tcl 8.5
 package require cmdline 1.3
+package require fileutil 1.13
 
 package provide TimeTrackCLI 1.1
 
@@ -71,12 +72,9 @@ proc read_alias_file {filename} {
         return {}
     }
 
-    set in [open $filename r]
-
     set result {}
-    set line [gets $in]
     set line_number 1
-    while {![eof $in]} {
+    ::fileutil::foreachLine line $filename {
         set line [string trim $line]
         if {$line ne {}} {
             set parts [split $line =]
@@ -88,7 +86,6 @@ proc read_alias_file {filename} {
             lappend result [list [string trim $alias] [string trim $code]]
         }
 
-        set line [gets $in]
         incr line_number
     }
 
@@ -100,18 +97,13 @@ proc read_data_file {filename} {
         return {}
     }
 
-    set in [open $filename r]
-
     set result {}
-    set line [gets $in]
-    while {![eof $in]} {
+    ::fileutil::foreachLine line $filename {
         set line [string trim $line]
         if {$line ne {}} {
             lappend result $line
         }
-        set line [gets $in]
     }
-    close $in
 
     return $result
 }
