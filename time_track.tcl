@@ -40,6 +40,7 @@ array set state [list \
     data {} \
     data_file [file join $::env(HOME) .time_track time_track.txt] \
     alias_file [file join $::env(HOME) .time_track aliases.txt] \
+    hooks_dir [file join $::env(HOME) .time_track] \
 ]
 
 proc main {argc argv} {
@@ -287,6 +288,23 @@ proc get_code_from_alias {alias} {
     return [lindex $::state(aliases) $index 1]
 }
 
+proc execute_hook {name args_list} {
+    set path [file join $::state(hooks_dir) $name]
+    
+    if {![file executable $path]} {
+        return
+    }
+
+    set cmd [list $path]
+    foreach arg $args_list {
+        lappend cmd [string map {\" \\" \' \\' \\ \\\\ \/ \\/} $arg]
+    }
+
+    if {[catch {exec -ignorestderr -- {*}$cmd} error]} {
+        puts "error executing $name: $error"
+    }
+}
+
 set cmd.start.description "Starts a new task.  Stops the current task (if any)."
 proc cmd.start {argv} {
     set options {
@@ -350,6 +368,15 @@ proc cmd.stop {argv} {
     set parts(end_time) $params(time)
 
     set ::state(data) [lreplace $::state(data) end end [components_to_line [array get parts]]]
+
+    set post_stop_args [list \
+        $parts(message) \
+        $parts(start_time) \
+        $parts(end_time) \
+        $parts(code) \
+    ]
+
+    execute_hook post-stop $post_stop_args
 }
 
 set cmd.cancel.description "Cancels the current active task."

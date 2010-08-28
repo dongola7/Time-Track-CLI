@@ -8,7 +8,7 @@ This program is released under the "BSD":http://creativecommons.org/licenses/BSD
 
 h1. Installation
 
-Installation on \*NIX systems should be pretty straightforward.  The only dependencies are Tcl 8.5 or greater and the tcllib support library (specifically, the cmdline packet).  If you're running Ubuntu, you can install both of these using @apt-get@:
+Installation on *NIX systems should be pretty straightforward.  The only dependencies are Tcl 8.5 or greater and the tcllib support library (specifically, the cmdline packet).  If you're running Ubuntu, you can install both of these using @apt-get@:
 
 <pre><code>apt-get install tcl8.5 tcllib</code></pre>
 
@@ -149,6 +149,18 @@ h3. Options
 
 |_. Options |_. Description |
 | @-resume@ | Resume work on the previous active task. |
+
+h1. Hook Scripts
+
+Time-Track-CLI supports the use of hook scripts to extend functionality.  Hook scripts are small shell scripts executed at various stages within Time-Track-CLI.  For example, the post-stop hook is executed whenever a task is stopped.
+
+Currently the following hooks are supported:
+
+* post-stop - Executed whenever a task is stopped.
+
+Example hooks scripts are included in the source distribution.  All examples end with the extension *.sample.  The post-stop.sample script includes an example of how to post your tasks to Twitter.
+
+To use the hook scripts, simple copy one of the *.sample scripts to @$(HOME)/.time_track@, removing the *.sample extension.  Then set the executable bits on the script.
 
 h1. Reporting Bugs and Requesting Features
 

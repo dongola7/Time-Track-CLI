@@ -1,0 +1,41 @@
+#!/bin/sh
+
+#
+# An example hook script called when a task is stopped.  This occurs
+# either when 'time_track.tcl stop' is explicitly called, or when
+# 'time_track.tcl start' is called with a task already in progress.
+# 
+# The hook will be called with 4 arguments:
+#    task description
+#    start time (seconds since UNIX epoch)
+#    end time (seconds since UNIX epoch)
+#    code (may be empty)
+#
+# The hook should return a 0 error code to avoid causing errors
+# in time_track.tcl.
+#
+# To enable this hook, copy to $(HOME)/.time_track/post-stop
+# and set the executable bit.
+#
+
+description=$1
+start_time=$2
+stop_time=$3
+code=$4
+
+# By downloading and installing ttytter.pl 
+# (http://www.floodgap.com/software/ttytter/) you can send notifications
+# to Twitter when tasks are stopped.
+# 
+# For example:
+#
+# ttytter.pl -status="stopped $description"
+#
+# The following example demonstrates how to send the task to Daytum
+# (http://daytum.com) for tracking.
+#
+# Just replace 'time_track' with the name of your Daytum dataset.
+#
+# duration_minutes=`expr $stop_time - $start_time`
+# duration_minutes=`expr $duration_minutes / 60`
+# ttyter.pl -status="d daytum time_track : $description : $duration_minutes"
