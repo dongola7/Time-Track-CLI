@@ -32,6 +32,8 @@ exec tclsh "$0" ${1+"$@"}
 package require Tcl 8.5
 package require cmdline 1.3
 
+package provide TimeTrackCLI 1.1
+
 array set state [list \
     aliases {} \
     data {} \
@@ -524,7 +526,7 @@ proc cmd.help {argv} {
 
     array set params [::cmdline::getoptions argv $options $usage]
 
-    puts "time_track.tcl 0.3.1"
+    puts "time_track.tcl [package require TimeTrackCLI]"
     puts ""
     puts "Command line based time tracking software."
     puts ""
