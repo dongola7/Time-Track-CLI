@@ -570,4 +570,6 @@ proc cmd.help {argv} {
     puts "Released under the BSD license (http://creativecommons.org/licenses/BSD/)."
 }
 
-main $argc $argv
+if {$tcl_interactive == 0} {
+    main $argc $argv
+}
