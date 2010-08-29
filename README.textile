@@ -8,6 +8,14 @@ This program is released under the "BSD":http://creativecommons.org/licenses/BSD
 
 h1. Installation
 
+h2. MacPorts
+
+If you already have MacPorts installed on your OS X system, you can install the latest version of Time-Track-CLI via the command: @sudo port install time-track-cli@.
+
+See http://macports.org for additional information on MacPorts.
+
+h2. Source
+
 Installation on *NIX systems should be pretty straightforward.  The only dependencies are Tcl 8.5 or greater and the tcllib support library (specifically, the cmdline packet).  If you're running Ubuntu, you can install both of these using @apt-get@:
 
 <pre><code>apt-get install tcl8.5 tcllib</code></pre>
