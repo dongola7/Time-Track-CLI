@@ -570,6 +570,16 @@ proc cmd.help {argv} {
     puts "Released under the BSD license (http://creativecommons.org/licenses/BSD/)."
 }
 
+set cmd.version.description "Prints the version number."
+proc cmd.version {argv} {
+    set options { }
+    set usage "version \[options]\n\n${::cmd.version.description}\n\noptions:"
+
+    array set params [::cmdline::getoptions argv $options $usage]
+
+    puts [package require TimeTrackCLI]
+}
+
 if {$tcl_interactive == 0} {
     main $argc $argv
 }

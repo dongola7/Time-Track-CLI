@@ -150,6 +150,14 @@ h3. Options
 |_. Options |_. Description |
 | @-resume@ | Resume work on the previous active task. |
 
+h2. version
+
+Prints the version number.
+
+h3. Options
+
+None
+
 h1. Hook Scripts
 
 Time-Track-CLI supports the use of hook scripts to extend functionality.  Hook scripts are small shell scripts executed at various stages within Time-Track-CLI.  For example, the post-stop hook is executed whenever a task is stopped.
