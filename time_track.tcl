@@ -33,7 +33,7 @@ package require Tcl 8.5
 package require cmdline 1.3
 package require fileutil 1.13
 
-package provide TimeTrackCLI 1.1
+package provide TimeTrackCLI 1.2
 
 array set state [list \
     aliases {} \
