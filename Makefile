@@ -17,4 +17,4 @@ README.html: README.textile
 	redcloth < $^ > $@
 
 clean:
-	rm -rf $(ARCHIVE) Portfile
+	rm -rf $(ARCHIVE) Portfile README.html
