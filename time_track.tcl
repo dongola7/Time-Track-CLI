@@ -491,7 +491,7 @@ proc cmd.status {argv} {
 
     set duration [expr {([clock seconds] - $parts(start_time)) / 60}]
 
-    puts "$parts(message) for [format_duration $duration]"
+    puts "$parts(message) for [format_duration $duration] (since [format_time $parts(start_time)])"
 }
 
 set cmd.list-aliases.description "Lists all of the aliases defined along with their associated charge code."
