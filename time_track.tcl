@@ -501,6 +501,26 @@ proc cmd.list-codes {options argv} {
     }
 }
 
+::cli::registerCommand cmd.edit-aliases \
+    -description "Edits the file defining aliases with the preferred editor" \
+    -name "edit-aliases" \
+    -options {
+        {editor.arg "" "Path to the editor to execute"}
+    }
+proc cmd.edit-aliases {options argv} {
+    array set params $options
+
+    if {$params(editor) ne ""} {
+        set editor $params(editor)
+    } elseif {[info exists ::env(VISUAL)]} {
+        set editor $::env(VISUAL)
+    } elseif {[info exists ::env(EDITOR)]} {
+        set editor $::env(EDITOR)
+    }
+
+    exec $editor $::state(alias_file) <@stdin >@stdout 2>@stderr
+}
+
 if {$tcl_interactive == 0} {
     main $argc $argv
 }
