@@ -33,7 +33,9 @@ package require Tcl 8.5
 package require cmdline 1.3
 package require fileutil 1.13
 
-package provide TimeTrackCLI 1.2
+source cli.tcl
+
+package provide TimeTrackCLI 1.3
 
 array set state [list \
     aliases {} \
@@ -43,28 +45,23 @@ array set state [list \
     hooks_dir [file join $::env(HOME) .time_track] \
 ]
 
+::cli::setAppInfo "time_track.tcl" [package require TimeTrackCLI] \
+    -description "Command line based time tracking software." \
+    -extra "Source code and releases may be found at http://github.com/dongola7/Time-Track-CLI.
+Report bugs at http://github.com/dongola7/Time-Track-CLI/issues.
+
+Released under the BSD license (http://creativecommons.org/licenses/BSD/)."
+
 proc main {argc argv} {
-    if {$argv < 1} {
-        cmd.help {}
-        exit -1
-    }
-
-    set cmd [lindex $argv 0]
-    set argv [lrange $argv 1 end]
-
     file mkdir [file dirname $::state(data_file)]
-
-    if {[catch {findMatchingCommand $cmd} cmd]} {
-        puts stderr $cmd
-        exit -1
-    }
-
     set ::state(aliases) [read_alias_file $::state(alias_file)]
     set ::state(data) [read_data_file $::state(data_file)]
-    if {[catch {$cmd $argv} msg]} {
+
+    if {[catch {::cli::main $argc $argv} msg]} {
         puts stderr $msg
         exit -1
     }
+
     write_data_file $::state(data_file) $::state(data)
 }
 
@@ -115,32 +112,6 @@ proc write_data_file {filename data} {
         puts $out $line
     }
     close $out
-}
-
-proc findMatchingCommand {cmd} {
-    if {[info commands cmd.$cmd] ne {}} {
-        return cmd.$cmd
-    }
-
-    # See if this is a unique prefix
-    set cmd_list [info commands cmd.$cmd*]
-    if {[llength $cmd_list] == 1} {
-        return [lindex $cmd_list 0]
-    }
-
-    # Generate an error message.  If we have
-    # some possible commands, include those in
-    # the message.
-    set error_msg "Unknown command '$cmd'."
-    if {[llength $cmd_list] > 0} {
-        set cmd_list [lsort $cmd_list]
-        append error_msg "\nDid you mean:"
-        foreach cmd $cmd_list {
-            append error_msg "\n\t[regsub -- {cmd\.} $cmd {}]"
-        }
-    }
-
-    return -code error $error_msg
 }
 
 proc format_time {time} {
@@ -305,15 +276,16 @@ proc execute_hook {name args_list} {
     }
 }
 
-set cmd.start.description "Starts a new task.  Stops the current task (if any)."
-proc cmd.start {argv} {
-    set options {
-        {time.arg "now" "Explicitly set the starting time."}
+::cli::registerCommand cmd.start \
+    -description "Starts a new task.  Stops the current task (if any)." \
+    -options {
+        {time.arg "now" "Explicitly sets the starting time."}
         {code.arg "" "Specify the associated charge code."}
-    }
-    set usage "start \[options] <task>\n\n${::cmd.start.description}\n\noptions:"
-
-    array set params [::cmdline::getoptions argv $options $usage]
+    } \
+    -arguments "<task>" \
+    -name "start"
+proc cmd.start {options argv} {
+    array set params $options
 
     if {$params(time) eq "now"} {
         set params(time) [clock seconds]
@@ -340,14 +312,14 @@ proc cmd.start {argv} {
     lappend ::state(data) [components_to_line $parts]
 }
 
-set cmd.stop.description "Stops the current active task."
-proc cmd.stop {argv} {
-    set options {
+::cli::registerCommand cmd.stop \
+    -description "Stops the current active task." \
+    -options {
         {time.arg "now" "Explicitly set the stop time."}
-    }
-    set usage "stop \[options]\n\n${::cmd.stop.description}\n\noptions:"
-
-    array set params [::cmdline::getoptions argv $options $usage]
+    } \
+    -name "stop"
+proc cmd.stop {options argv} {
+    array set params $options
 
     if {[exists_active_task] == 0} {
         return -code error "You're not currently working on anything."
@@ -379,14 +351,14 @@ proc cmd.stop {argv} {
     execute_hook post-stop $post_stop_args
 }
 
-set cmd.cancel.description "Cancels the current active task."
-proc cmd.cancel {argv} {
-    set options { 
+::cli::registerCommand cmd.cancel \
+    -description "Cancels the current active task." \
+    -options {
         {resume "Resume the previous task."}
-    }
-    set usage "cancel \[options]\n\n${::cmd.cancel.description}\n\noptions:"
-
-    array set params [::cmdline::getoptions argv $options $usage]
+    } \
+    -name "cancel"
+proc cmd.cancel {options argv} {
+    array set params $options
 
     if {[exists_active_task] == 0} {
         return -code error "You're not currently working on anything."
@@ -406,14 +378,14 @@ proc cmd.cancel {argv} {
     }
 }
 
-set cmd.summary.description "Generates a summary report of the tasks for a given date."
-proc cmd.summary {argv} {
-    set options {
+::cli::registerCommand cmd.summary \
+    -description "Generates a summary report of the tasks for a given date." \
+    -options {
         {date.arg "today" "The date to summarize"}
-    }
-    set usage "summary \[options]\n\n${::cmd.summary.description}\n\noptions:"
-
-    array set params [::cmdline::getoptions argv $options $usage]
+    } \
+    -name "summary"
+proc cmd.summary {options argv} {
+    array set params $options
 
     if {$params(date) eq "today"} {
         set filter_start_time [clock scan "today 0:00"]
@@ -475,13 +447,10 @@ proc cmd.summary {argv} {
     puts "For the day [format_duration $daily_total]"
 }
 
-set cmd.status.description "Lists the active task and amount of time spent."
-proc cmd.status {argv} {
-    set options { }
-    set usage "status \[options]\n\n${::cmd.status.description}\n\noptions:"
-
-    array set params [::cmdline::getoptions argv $options $usage]
-
+::cli::registerCommand cmd.status \
+    -description "Lists the active task and amount of time spent." \
+    -name "status"
+proc cmd.status {options argv} {
     if {[exists_active_task] == 0} {
         return -code error "You're not currently working on anything."
     }
@@ -494,26 +463,20 @@ proc cmd.status {argv} {
     puts "$parts(message) for [format_duration $duration] (since [format_time $parts(start_time)])"
 }
 
-set cmd.list-aliases.description "Lists all of the aliases defined along with their associated charge code."
-proc cmd.list-aliases {argv} {
-    set options { }
-    set usage "list-aliases \[options]\n\n${::cmd.list-aliases.description}\n\noptions:"
-
-    array set params [::cmdline::getoptions argv $options $usage]
-
+::cli::registerCommand cmd.list-aliases \
+    -description "Lists all of the aliases defined along with their associated charge code." \
+    -name "list-aliases"
+proc cmd.list-aliases {options argv} {
     foreach alias_pair $::state(aliases) {
         foreach {alias code} $alias_pair break
         puts "$alias - $code"
     }
 }
 
-set cmd.list-codes.description "Lists all active charge codes and the last date and task for each."
-proc cmd.list-codes {argv} {
-    set options { }
-    set usage "list-codes \[options]\n\n${::cmd.list-codes.description}\n\noptions:"
-
-    array set params [::cmdline::getoptions argv $options $usage]
-
+::cli::registerCommand cmd.list-codes \
+    -description "Lists all active charge codes and the last date and task for each." \
+    -name "list-codes"
+proc cmd.list-codes {options argv} {
     array set summary {}
 
     foreach_entry components {
@@ -536,48 +499,6 @@ proc cmd.list-codes {argv} {
     foreach code [lsort [array names summary]] {
         puts "$code $summary($code)"
     }
-}
-
-set cmd.help.description "Lists all available commands."
-proc cmd.help {argv} {
-    set options { }
-    set usage "help \[options]\n\n${::cmd.help.description}\n\noptions:"
-
-    array set params [::cmdline::getoptions argv $options $usage]
-
-    puts "time_track.tcl [package require TimeTrackCLI]"
-    puts ""
-    puts "Command line based time tracking software."
-    puts ""
-    puts "Usage: [info script] <command> ?options?"
-    puts ""
-    puts "Available commands:"
-    puts ""
-    foreach command [lsort [info commands cmd.*]] {
-        set description ""
-        if {[info exists ::$command.description]} {
-            set description " - [set ::$command.description]"
-        }
-        set command [regsub -- {cmd\.} $command {}]
-        puts "   $command$description"
-    }
-    puts ""
-    puts "See '[info script] <command> -help' for more information on a specific command."
-    puts ""
-    puts "Source code and releases may be found at http://github.com/dongola7/Time-Track-CLI."
-    puts "Report bugs at http://github.com/dongola7/Time-Track-CLI/issues."
-    puts ""
-    puts "Released under the BSD license (http://creativecommons.org/licenses/BSD/)."
-}
-
-set cmd.version.description "Prints the version number."
-proc cmd.version {argv} {
-    set options { }
-    set usage "version \[options]\n\n${::cmd.version.description}\n\noptions:"
-
-    array set params [::cmdline::getoptions argv $options $usage]
-
-    puts [package require TimeTrackCLI]
 }
 
 if {$tcl_interactive == 0} {
