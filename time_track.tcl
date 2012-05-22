@@ -306,7 +306,7 @@ proc cmd.start {options argv} {
     set parts [list start_time $params(time) end_time "" message $argv code $code]
 
     if {[exists_active_task] != 0} {
-        cmd.stop [list -time [format_time $params(time)]]
+        cmd.stop [list time [format_time $params(time)]] {}
     }
 
     lappend ::state(data) [components_to_line $parts]
