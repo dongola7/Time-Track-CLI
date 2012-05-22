@@ -516,6 +516,8 @@ proc cmd.edit-aliases {options argv} {
         set editor $::env(VISUAL)
     } elseif {[info exists ::env(EDITOR)]} {
         set editor $::env(EDITOR)
+    } else {
+        puts "unable to determine preferred editor (did you remember to set the EDITOR environment variable?)"
     }
 
     exec $editor $::state(alias_file) <@stdin >@stdout 2>@stderr
