@@ -33,7 +33,7 @@ package require Tcl 8.5
 package require cmdline 1.3
 package require fileutil 1.13
 
-source cli.tcl
+source [file join [file dirname [info script]] cli.tcl]
 
 package provide TimeTrackCLI 1.3
 
