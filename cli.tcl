@@ -32,9 +32,11 @@ package provide cli 1.0
 namespace eval ::cli { 
     dict create commands { }
     dict create appInfo { }
+
+    namespace export setAppInfo registerCommand
 }
 
-proc ::cli::findMatchingCommand {cmd} {
+proc ::cli::FindMatchingCommand {cmd} {
     variable commands
 
     if {[dict keys $commands $cmd] ne {}} {
@@ -79,25 +81,25 @@ proc ::cli::setAppInfo {name version args} {
 
 proc ::cli::main {argc argv} {
     if {$argv < 1} {
-        cmd.help {} {}
+        Cmd.help {} {}
         exit -1
     }
 
     set cmd [lindex $argv 0]
     set argv [lrange $argv 1 end]
 
-    if {[catch {findMatchingCommand $cmd} commandProc]} {
+    if {[catch {FindMatchingCommand $cmd} commandProc]} {
         puts stderr $commandProc
         exit -1
     }
 
-    if {[catch {executeCommand $commandProc $argv} msg]} {
+    if {[catch {ExecuteCommand $commandProc $argv} msg]} {
         puts stderr $msg
         exit -1
     }
 }
 
-proc ::cli::executeCommand {cmd argv} {
+proc ::cli::ExecuteCommand {cmd argv} {
     variable commands
 
     set description [dict get $commands $cmd description]
@@ -131,10 +133,10 @@ proc ::cli::registerCommand {cmd args} {
     dict set commands $params(name) proc $cmd
 }
 
-::cli::registerCommand ::cli::cmd.help \
+::cli::registerCommand ::cli::Cmd.help \
     -description "Lists all available commands." \
     -name "help"
-proc ::cli::cmd.help {params argv} {
+proc ::cli::Cmd.help {params argv} {
     variable commands
     variable appInfo
 
