@@ -26,7 +26,7 @@ array set state [list \
 
 ::cli::setAppInfo "time_track.tcl" [package require TimeTrackCLI] \
     -description "Command line based time tracking software." \
-    -extra "Source code and releases may be found at http://github.com/dongola7/Time-Track-CLI.
+    -extra "Source code and releases found at http://github.com/dongola7/Time-Track-CLI.
 Report bugs at http://github.com/dongola7/Time-Track-CLI/issues.
 
 Released under the BSD license (http://creativecommons.org/licenses/BSD/)."
