@@ -12,8 +12,15 @@ package provide cli 1.0
 namespace eval ::cli { 
     dict create commands { }
     dict create appInfo { }
+    set terminalWidth 80
 
     namespace export setAppInfo registerCommand wrapText
+}
+
+proc ::cli::setTerminalWidth {width} {
+    variable terminalWidth
+
+    set terminalWidth $width
 }
 
 proc ::cli::FindMatchingCommand {cmd} {
@@ -148,15 +155,16 @@ proc ::cli::registerCommand {cmd args} {
 proc ::cli::Cmd.help {params argv} {
     variable commands
     variable appInfo
+    variable terminalWidth
 
     if {$appInfo ne {}} {
         puts "[dict get $appInfo name] [dict get $appInfo version]"
         puts ""
     }
-    puts [wrapText "Usage: [info script] <command> ?options?" 80 "   "]
+    puts [wrapText "Usage: [info script] <command> ?options?" $terminalWidth "   "]
     if {[dict get $appInfo description] ne ""} {
         puts ""
-        puts [wrapText [dict get $appInfo description] 80]
+        puts [wrapText [dict get $appInfo description] $terminalWidth]
     }
     puts ""
     puts "Available commands:"
@@ -166,17 +174,18 @@ proc ::cli::Cmd.help {params argv} {
         if {$description ne ""} {
             set description " - $description"
         }
-        puts [wrapText "   $command$description" 80 "      "]
+        puts [wrapText "   $command$description" $terminalWidth "      "]
     }
     puts ""
     puts [wrapText \
-        "See '[info script] <command> -help' for more information on a specific command." 80]
+        "See '[info script] <command> -help' for more information on a specific command." \
+        $terminalWidth]
 
     set extra [dict get $appInfo extra]
     if {$extra ne ""} {
         puts ""
         foreach line [split $extra \n] {
-            puts [wrapText $line 80]
+            puts [wrapText $line $terminalWidth]
         }
     }
 }
