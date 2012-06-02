@@ -50,7 +50,13 @@ proc ::cli::FindMatchingCommand {cmd} {
     return -code error $error_msg
 }
 
-proc ::cli::wrapText {text width {linePrefix ""}} {
+proc ::cli::wrapText {text {linePrefix ""} {width ""}} {
+    variable terminalWidth
+
+    if {$width eq ""} {
+        set width $terminalWidth
+    }
+
     if {[string length $text] < $width} {
         return $text
     }
@@ -155,16 +161,15 @@ proc ::cli::registerCommand {cmd args} {
 proc ::cli::Cmd.help {params argv} {
     variable commands
     variable appInfo
-    variable terminalWidth
 
     if {$appInfo ne {}} {
         puts "[dict get $appInfo name] [dict get $appInfo version]"
         puts ""
     }
-    puts [wrapText "Usage: [info script] <command> ?options?" $terminalWidth "   "]
+    puts [wrapText "Usage: [info script] <command> ?options?" "   "]
     if {[dict get $appInfo description] ne ""} {
         puts ""
-        puts [wrapText [dict get $appInfo description] $terminalWidth]
+        puts [wrapText [dict get $appInfo description]]
     }
     puts ""
     puts "Available commands:"
@@ -174,18 +179,17 @@ proc ::cli::Cmd.help {params argv} {
         if {$description ne ""} {
             set description " - $description"
         }
-        puts [wrapText "   $command$description" $terminalWidth "      "]
+        puts [wrapText "   $command$description" "      "]
     }
     puts ""
     puts [wrapText \
-        "See '[info script] <command> -help' for more information on a specific command." \
-        $terminalWidth]
+        "See '[info script] <command> -help' for more information on a specific command."]
 
     set extra [dict get $appInfo extra]
     if {$extra ne ""} {
         puts ""
         foreach line [split $extra \n] {
-            puts [wrapText $line $terminalWidth]
+            puts [wrapText $line]
         }
     }
 }
