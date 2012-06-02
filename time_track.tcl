@@ -24,6 +24,8 @@ array set state [list \
     hooks_dir [file join $::env(HOME) .time_track] \
 ]
 
+::cli::setTerminalWidth [lindex [exec stty size] 1]
+
 ::cli::setAppInfo "time_track.tcl" [package require TimeTrackCLI] \
     -description "Command line based time tracking software." \
     -extra "Source code and releases found at http://github.com/dongola7/Time-Track-CLI.
@@ -410,20 +412,20 @@ proc cmd.summary {options argv} {
             }
         }
 
-        puts "Charges to $code"
+        puts [::cli::wrapText "Charges to $code" "   "]
         foreach message [array names messages] {
             set duration $messages($message)
-            puts "   $message -  [format_duration $duration]"
+            puts [::cli::wrapText "   $message -  [format_duration $duration]" "      "]
             incr subtotal $duration
             incr daily_total $duration
         }
         array unset messages
 
         puts "---"
-        puts "Subtotal for $code [format_duration $subtotal]"
+        puts [::cli::wrapText "Subtotal for $code [format_duration $subtotal]"]
         puts ""
     }
-    puts "For the day [format_duration $daily_total]"
+    puts [::cli::wrapText "For the day [format_duration $daily_total]"]
 }
 
 ::cli::registerCommand cmd.status \
@@ -439,7 +441,7 @@ proc cmd.status {options argv} {
 
     set duration [expr {([clock seconds] - $parts(start_time)) / 60}]
 
-    puts "$parts(message) for [format_duration $duration] (since [format_time $parts(start_time)])"
+    puts [::cli::wrapText "$parts(message) for [format_duration $duration] (since [format_time $parts(start_time)])"]
 }
 
 ::cli::registerCommand cmd.list-aliases \
@@ -448,7 +450,7 @@ proc cmd.status {options argv} {
 proc cmd.list-aliases {options argv} {
     foreach alias_pair $::state(aliases) {
         foreach {alias code} $alias_pair break
-        puts "$alias - $code"
+        puts [::cli::wrapText "$alias - $code" "   "]
     }
 }
 
@@ -476,7 +478,7 @@ proc cmd.list-codes {options argv} {
     }
 
     foreach code [lsort [array names summary]] {
-        puts "$code $summary($code)"
+        puts [::cli::wrapText "$code $summary($code)" "   "]
     }
 }
 
@@ -496,7 +498,7 @@ proc cmd.edit-aliases {options argv} {
     } elseif {[info exists ::env(EDITOR)]} {
         set editor $::env(EDITOR)
     } else {
-        puts "unable to determine preferred editor (did you remember to set the EDITOR environment variable?)"
+        puts [::cli::wrapText "unable to determine preferred editor (did you remember to set the EDITOR environment variable?)"]
     }
 
     exec $editor $::state(alias_file) <@stdin >@stdout 2>@stderr
