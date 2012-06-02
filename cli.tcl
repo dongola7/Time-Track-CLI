@@ -13,7 +13,7 @@ namespace eval ::cli {
     dict create commands { }
     dict create appInfo { }
 
-    namespace export setAppInfo registerCommand
+    namespace export setAppInfo registerCommand wrapText
 }
 
 proc ::cli::FindMatchingCommand {cmd} {
@@ -41,6 +41,35 @@ proc ::cli::FindMatchingCommand {cmd} {
     }
 
     return -code error $error_msg
+}
+
+proc ::cli::wrapText {text width {linePrefix ""}} {
+    if {[string length $text] < $width} {
+        return $text
+    }
+
+    set result ""
+
+    while {[string length $text] > $width} {
+
+        if {[string length $result] > 0} {
+            append result "\n$linePrefix"
+            set width [expr {$width - [string length $linePrefix]}]
+        }
+
+        set lineEndIndex [string wordstart $text $width]
+        if {$lineEndIndex != 0} {
+            incr lineEndIndex -1
+        }
+        append result [string range $text 0 $lineEndIndex]
+        set text [string range $text [expr {$lineEndIndex + 1}] end]
+    }
+
+    if {[string length $text] > 0} {
+        append result "\n$linePrefix$text"
+    }
+
+    return $result
 }
 
 proc ::cli::setAppInfo {name version args} {
@@ -124,10 +153,10 @@ proc ::cli::Cmd.help {params argv} {
         puts "[dict get $appInfo name] [dict get $appInfo version]"
         puts ""
     }
-    puts "Usage: [info script] <command> ?options?"
+    puts [wrapText "Usage: [info script] <command> ?options?" 80 "   "]
     if {[dict get $appInfo description] ne ""} {
         puts ""
-        puts [dict get $appInfo description]
+        puts [wrapText [dict get $appInfo description] 80]
     }
     puts ""
     puts "Available commands:"
@@ -137,15 +166,18 @@ proc ::cli::Cmd.help {params argv} {
         if {$description ne ""} {
             set description " - $description"
         }
-        puts "   $command$description"
+        puts [wrapText "   $command$description" 80 "      "]
     }
     puts ""
-    puts "See '[info script] <command> -help' for more information on a specific command."
+    puts [wrapText \
+        "See '[info script] <command> -help' for more information on a specific command." 80]
 
     set extra [dict get $appInfo extra]
     if {$extra ne ""} {
         puts ""
-        puts $extra
+        foreach line [split $extra \n] {
+            puts [wrapText $line 80]
+        }
     }
 }
 
